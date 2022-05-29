@@ -14,66 +14,106 @@ import utility.DBClose;
 import utility.DBOpen;
 
 public class memoDAO {
+
+
+public memoDTO readReply(int memono) {
+        BbsDTO dto = null;
+        Connection con = DBOpen.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+ 
+        StringBuffer sql = new StringBuffer();
+        sql.append(" select bbsno, grpno, indent, ansnum, title ");
+        sql.append(" from memo ");
+        sql.append(" where memono = ? ");
+ 
+        try {
+                pstmt = con.prepareStatement(sql.toString());
+                pstmt.setInt(1, bbsno);
+                
+                rs = pstmt.executeQuery();
+                
+                if(rs.next()) {
+                        dto = new memoDTO();
+                        dto.setMemono(rs.getInt("memono"));
+                        dto.setGrpno(rs.getInt("grpno"));
+                        dto.setIndent(rs.getInt("indent"));
+                        dto.setAnsnum(rs.getInt("ansnum"));
+                        dto.setTitle(rs.getString("title"));
+                }
+                
+        } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        } finally {
+                DBClose.close(rs, pstmt, con);
+        }
+                        
+        return dto;
+}
+
+
+
+
   
-  public  void upAnsum(Map map) {
+    public void upAnsnum(Map map) {
     Connection con = DBOpen.getConnection();
     PreparedStatement pstmt = null;
     StringBuffer sql = new StringBuffer();
-sql.append("   UPDATE memo    ");
-sql.append("  SET    ");
-sql.append("  ansnum=ansnum+1   ");
-sql.append("  WHERE memono = ?   ");
-    
-int grpno = (int)map.get("grpno");
-int ansnum = (int)map.get("ansnum");
-
+    int grpno = (Integer) map.get("grpno");
+    int ansnum = (Integer) map.get("ansnum");
+    sql.append(" update memo ");
+    sql.append(" set ansnum = ansnum + 1 ");
+    sql.append(" where grpno = ?  ");
+    sql.append(" and ansnum > ?  ");
+ 
     try {
       pstmt = con.prepareStatement(sql.toString());
       pstmt.setInt(1, grpno);
       pstmt.setInt(2, ansnum);
-      
+ 
       pstmt.executeUpdate();
+ 
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }finally {
-      DBClose.close(pstmt, con);
+    } finally {
+      DBClose.close(pstmt,con);
     }
-    
-    
-  
+ 
   }
-  
+ 
   public boolean createReply(memoDTO dto) {
     boolean flag = false;
     Connection con = DBOpen.getConnection();
     PreparedStatement pstmt = null;
     StringBuffer sql = new StringBuffer();
-    sql.append(" INSERT INTO memo( wname, title, content, passwd, wdate, grpno, indent, ansnum)   ");
-    sql.append("  VALUES(?, ?, ?,?, sysdate(),?,?,?)  ");
-    
-    
+    sql.append(" INSERT INTO memo(wname, title, ");
+    sql.append(" content, passwd, wdate, grpno, indent, ansnum) ");
+    sql.append(" VALUES(  ?, ?, ?, ?, sysdate(), ?, ?, ? ) ");
+ 
     try {
       pstmt = con.prepareStatement(sql.toString());
       pstmt.setString(1, dto.getWname());
       pstmt.setString(2, dto.getTitle());
       pstmt.setString(3, dto.getContent());
       pstmt.setString(4, dto.getPasswd());
-      pstmt.setInt(5, dto.getGrpno());
-      pstmt.setInt(6, dto.getIndent()+1);
-      pstmt.setInt(7, dto.getAnsnum()+1);
-      
+      pstmt.setInt(5, dto.getGrpno());// ★부모의grpno
+      pstmt.setInt(6, dto.getIndent() + 1);// ★부모의indent+1
+      pstmt.setInt(7, dto.getAnsnum() + 1);// ★부모의ansnum+1
+ 
       int cnt = pstmt.executeUpdate();
-      
-      if(cnt>0) flag = true;
-      
+ 
+      if (cnt > 0)
+        flag = true;
+ 
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } finally {
-      DBClose.close(pstmt, con);
+      DBClose.close(pstmt,con);
     }
-    
+ 
     return flag;
   }
 
