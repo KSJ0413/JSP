@@ -173,3 +173,16 @@ application.log("application 내부 객체 로그 테스트");
 request1.html의 MIME Type :<%=mimeType%><p />
 
 로컬 파일 시스템 경로 :<%=realPath%>
+
+
+
+
+
+#### pageContext
+
+* Jsp페이지의 Context를 나타낸다.
+* pageContext 내부객체를 통해서 다른 내부객체를 접근할 수 있다.
+* out내부객체 가져오는 방법
+  JspWriter pageOut = pageContext.getOut();
+*  javax.servlet.jsp.PageContext 클래스 타입으로 제공된다.
+<img src= "클래스타입.jpg">
